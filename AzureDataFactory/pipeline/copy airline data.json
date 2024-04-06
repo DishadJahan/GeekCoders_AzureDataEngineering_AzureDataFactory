@@ -1,0 +1,64 @@
+{
+	"name": "copy airline data",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data airlines",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DelimitedText_Airlines",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Json_Airlines_Sink",
+						"type": "DatasetReference",
+						"parameters": {
+							"directory": {
+								"value": "@concat('airlines/Date_Part=',formatDateTime(utcNow(),'yyyy-MM-dd'))",
+								"type": "Expression"
+							},
+							"filename": "airlines.json"
+						}
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2024-04-06T20:46:02Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,9 @@
+{
+	"name": "ADFgeekcodersdev",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "15e92a97-e8e8-4a8c-9592-e9eb11b22d07",
+		"tenantId": "a4608493-78ff-488e-bc96-e0569291bf11"
+	}
+}

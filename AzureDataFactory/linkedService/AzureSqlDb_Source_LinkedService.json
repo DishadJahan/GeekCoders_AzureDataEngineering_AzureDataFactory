@@ -1,0 +1,19 @@
+{
+	"name": "AzureSqlDb_Source_LinkedService",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=geekcoderssource.database.windows.net;Initial Catalog=geekcoderssource_db;User ID=dishadjahan",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "GeekcodersKeyVault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "Azure-SQL-Password"
+			}
+		}
+	}
+}
