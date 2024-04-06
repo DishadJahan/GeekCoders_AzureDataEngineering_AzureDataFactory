@@ -1,0 +1,85 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "ADFgeekcodersdev"
+		},
+		"AzureSqlDb_Source_LinkedService_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDb_Source_LinkedService'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=geekcoderssource.database.windows.net;Initial Catalog=geekcoderssource_db;User ID=dishadjahan"
+		},
+		"ADLS_RawStorage_Sink_LinkService_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adlsgeekcodersdevop.dfs.core.windows.net"
+		},
+		"ADLS_Storage_LinkService_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adlsgeekcoders.dfs.core.windows.net"
+		},
+		"GeekcodersKeyVault_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://keyvaultgeekcodersdev.vault.azure.net/"
+		},
+		"HttpServer_Source_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://raw.githubusercontent.com/DishadJahan/GeekCoder_Airlines_Data_Repo/main/airlines.csv"
+		},
+		"RestAPI_LinkService_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://airlabs.co/api/v9/airlines"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "ADFgeekcodersdev_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureSqlDb_Source_LinkedService_connectionString": {
+						"value": "[parameters('AzureSqlDb_Source_LinkedService_connectionString')]"
+					},
+					"GeekcodersKeyVault_properties_typeProperties_baseUrl": {
+						"value": "[parameters('GeekcodersKeyVault_properties_typeProperties_baseUrl')]"
+					},
+					"HttpServer_Source_properties_typeProperties_url": {
+						"value": "[parameters('HttpServer_Source_properties_typeProperties_url')]"
+					},
+					"RestAPI_LinkService_properties_typeProperties_url": {
+						"value": "[parameters('RestAPI_LinkService_properties_typeProperties_url')]"
+					},
+					"ADLS_RawStorage_Sink_LinkService_properties_typeProperties_url": {
+						"value": "[parameters('ADLS_RawStorage_Sink_LinkService_properties_typeProperties_url')]"
+					},
+					"ADLS_Storage_LinkService_properties_typeProperties_url": {
+						"value": "[parameters('ADLS_Storage_LinkService_properties_typeProperties_url')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
