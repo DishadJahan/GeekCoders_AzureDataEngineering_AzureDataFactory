@@ -17,6 +17,9 @@
 		"GeekcodersKeyVault_properties_typeProperties_baseUrl": {
 			"value": "https://keyvaultgeekcodersdev.vault.azure.net/"
 		},
+		"HttpServer_Plane_Source_properties_typeProperties_url": {
+			"value": "https://raw.githubusercontent.com/DishadJahan/GeekCoder_AzureDataEngineering_Dataset/main/PLANE.csv"
+		},
 		"HttpServer_Source_properties_typeProperties_url": {
 			"value": "https://raw.githubusercontent.com/DishadJahan/GeekCoder_Airlines_Data_Repo/main/airlines.csv"
 		},
