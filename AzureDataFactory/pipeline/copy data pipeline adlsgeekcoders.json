@@ -1,6 +1,7 @@
 {
-	"name": "copy - airport airport dup flight",
+	"name": "copy data pipeline adlsgeekcoders",
 	"properties": {
+		"description": "Files: AIRPORT, AIRPORT dup, flight and PLANE files",
 		"activities": [
 			{
 				"name": "Lookup1",
