@@ -1,5 +1,5 @@
 {
-	"name": "copy data lake",
+	"name": "copy - airport airport dup flight",
 	"properties": {
 		"activities": [
 			{
