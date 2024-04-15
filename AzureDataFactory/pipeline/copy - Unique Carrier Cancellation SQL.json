@@ -1,6 +1,7 @@
 {
 	"name": "copy - Unique Carrier Cancellation SQL",
 	"properties": {
+		"description": "SQL Table: UNIQUE CARRIERS, Cancellation",
 		"activities": [
 			{
 				"name": "Lookup Metadata SQL",
