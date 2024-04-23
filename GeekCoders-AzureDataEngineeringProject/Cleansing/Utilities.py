@@ -13,12 +13,13 @@ def pre_schema(df_base):
 # MAGIC %py
 # MAGIC def f_delta_cleansed_load(table_name, location, schema, database):
 # MAGIC     try:
+# MAGIC         spark.sql(f"""DROP TABLE IF EXISTS {database}.{table_name}""");                    
 # MAGIC         spark.sql(f"""
-# MAGIC         CREATE TABLE IF NOT EXISTS {database}.{table_name}
-# MAGIC         ({schema})
-# MAGIC         using delta
-# MAGIC         location '{location}'          
-# MAGIC         """)
+# MAGIC                 CREATE TABLE IF NOT EXISTS {database}.{table_name}
+# MAGIC                 ({schema})
+# MAGIC                 using delta
+# MAGIC                 location '{location}'          
+# MAGIC                 """)
 # MAGIC     except Exception as err:
 # MAGIC         print("Error Occured", str(err))
 

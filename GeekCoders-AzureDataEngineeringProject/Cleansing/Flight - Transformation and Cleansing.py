@@ -1,7 +1,13 @@
 # Databricks notebook source
 # DBTITLE 1,Creating one DataFrame for all four "Flight" csv datasets:
 from functools import reduce
-from pyspark.sql import DataFrame
+from pyspark.sql import DataFrame, SparkSession
+
+# Set the Spark configuration options individually
+spark = SparkSession.builder \
+    .appName("FlightDataProcessing") \
+    .config("spark.sql.legacy.timeParserPolicy", "LEGACY")\
+    .getOrCreate()
 
 # List of paths for all CSV files
 paths = ["/mnt/raw_datalake/flight/"]
@@ -17,7 +23,7 @@ dfs = [spark.read.format("csv").options(header=True).load(path) for path in path
 df_base = unionAll(*dfs)
 
 # Show the schema of the merged DataFrame
-df_base.printSchema()
+# df_base.printSchema()
 
 # Show the first few rows of the merged DataFrame
 df_base.display()
@@ -26,14 +32,11 @@ df_base.display()
 
 # DBTITLE 1,Transformation - Changing the data types of certain columns
 df_base = df_base.selectExpr(
-    "cast(Year as int) as year", 
-    "cast(Month as int) as month", 
-    "cast(DayofMonth as int) as day",
-    "cast(DayOfWeek as int) as week",
-    "cast(DepTime as int) as DepTime",
-    "cast(CRSDepTime as int) as CRSDepTime",
-    "cast(ArrTime as int) as ArrTime",
-    "cast(CRSArrTime as int) as CRSArrTime",
+    "to_date(concat_ws('-', Year, Month, DayofMonth), 'yyyy-MM-dd') as date", 
+    "from_unixtime(unix_timestamp(case when DepTime = 2400 then 0 else DepTime End, 'HHmm'), 'HH:mm') as DepTime",
+    "from_unixtime(unix_timestamp(case when CRSDepTime = 2400 then 0 else CRSDepTime End, 'HHmm'), 'HH:mm') as CRSDepTime",
+    "from_unixtime(unix_timestamp(case when ArrTime = 2400 then 0 else ArrTime End, 'HHmm'), 'HH:mm') as ArrTime",
+    "from_unixtime(unix_timestamp(case when CRSArrTime = 2400 then 0 else CRSArrTime End, 'HHmm'), 'HH:mm') as CRSArrTime",
     "UniqueCarrier",
     "cast(FlightNum as int) as FlightNum",
     "TailNum",
@@ -47,7 +50,7 @@ df_base = df_base.selectExpr(
     "cast(Distance as int) as Distance",
     "cast(TaxiIn as int) as Taxi_In",
     "cast(TaxiOut as int) as Taxi_Out",
-    "cast(Cancelled as int) as Cancelled",
+    "Cancelled",
     "CancellationCode",
     "cast(Diverted as int) as Diverted",
     "cast(CarrierDelay as int) as CarrierDelay",

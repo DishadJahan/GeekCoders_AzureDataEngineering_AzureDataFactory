@@ -27,11 +27,29 @@ dbutils.fs.mount(
 
 # COMMAND ----------
 
+# DBTITLE 1,Mount & Connection from Databricks to "Datamart" container (ADLS)
+configs = {
+  "fs.azure.account.auth.type": "CustomAccessToken",
+  "fs.azure.account.custom.token.provider.class": spark.conf.get("spark.databricks.passthrough.adls.gen2.tokenProviderClassName")
+}
+
+
+dbutils.fs.mount(
+  source = "abfss://datamart@adlsgeekcodersdevop.dfs.core.windows.net/",
+  mount_point = "/mnt/datamart_datalake/",
+  extra_configs = configs)
+
+# COMMAND ----------
+
 dbutils.fs.ls("/mnt/raw_datalake/")
 
 # COMMAND ----------
 
 dbutils.fs.ls("/mnt/source_cleansed/")
+
+# COMMAND ----------
+
+dbutils.fs.ls("/mnt/datamart_datalake/")
 
 # COMMAND ----------
 
