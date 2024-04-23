@@ -1,0 +1,18 @@
+{
+	"name": "AzureSqlDB_Sink_LinkedService",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=geekcoders-devop.database.windows.net;Initial Catalog=geekcodersdev_db;User ID=dishadjahan",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "GeekcodersKeyVault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "Azure-SQL-Password"
+			}
+		}
+	}
+}
