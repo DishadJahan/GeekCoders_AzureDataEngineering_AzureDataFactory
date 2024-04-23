@@ -12,6 +12,11 @@
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDb_Source_LinkedService'",
 			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=geekcoderssource.database.windows.net;Initial Catalog=geekcoderssource_db;User ID=dishadjahan"
 		},
+		"AzureSqlDB_Sink_LinkedService_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDB_Sink_LinkedService'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=geekcoders-devop.database.windows.net;Initial Catalog=geekcodersdev_db;User ID=dishadjahan"
+		},
 		"ADLS_RawStorage_Sink_LinkService_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adlsgeekcodersdevop.dfs.core.windows.net"
@@ -65,6 +70,9 @@
 					},
 					"AzureSqlDb_Source_LinkedService_connectionString": {
 						"value": "[parameters('AzureSqlDb_Source_LinkedService_connectionString')]"
+					},
+					"AzureSqlDB_Sink_LinkedService_connectionString": {
+						"value": "[parameters('AzureSqlDB_Sink_LinkedService_connectionString')]"
 					},
 					"GeekcodersKeyVault_properties_typeProperties_baseUrl": {
 						"value": "[parameters('GeekcodersKeyVault_properties_typeProperties_baseUrl')]"
