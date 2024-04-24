@@ -15,7 +15,13 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Workspace/Users/dishadjahan.2802@outlook.com/geekcoders-DataEngineeringProject/Run_Notebooks"
+					"notebookPath": "/Workspace/Users/dishadjahan.2802@outlook.com/geekcoders-DataEngineeringProject/Run_Notebooks",
+					"baseParameters": {
+						"Layer_Name": {
+							"value": "@pipeline().parameters.Layer_Name",
+							"type": "Expression"
+						}
+					}
 				},
 				"linkedServiceName": {
 					"referenceName": "AzureDatabricks",
