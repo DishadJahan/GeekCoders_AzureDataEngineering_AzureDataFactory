@@ -8,7 +8,7 @@
 		"annotations": [],
 		"type": "Excel",
 		"typeProperties": {
-			"sheetName": "Email_Sheet",
+			"sheetName": "Email_Send",
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "Email_Send.xlsx",

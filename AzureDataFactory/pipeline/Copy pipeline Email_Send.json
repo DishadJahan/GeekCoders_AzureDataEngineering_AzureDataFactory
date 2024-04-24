@@ -28,6 +28,7 @@
 						"preCopyScript": "Drop table if exists dbo.Email_Send;",
 						"writeBehavior": "insert",
 						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate",
 						"disableMetricsCollection": false
 					},
 					"enableStaging": false,
