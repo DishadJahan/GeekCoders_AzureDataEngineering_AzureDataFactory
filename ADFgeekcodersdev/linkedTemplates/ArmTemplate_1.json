@@ -13,40 +13,121 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/AzureSqlTable_Sink_Publish')]",
+			"name": "[concat(parameters('factoryName'), '/Json_Airlines_Sink')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "AzureSqlDB_Sink_LinkedService",
+					"referenceName": "ADLS_RawStorage_Sink_LinkService",
 					"type": "LinkedServiceReference"
 				},
 				"parameters": {
-					"table_name": {
+					"directory": {
+						"type": "string"
+					},
+					"filename": {
 						"type": "string"
 					}
 				},
 				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
+				"type": "Json",
 				"typeProperties": {
-					"schema": "dbo",
-					"table": {
-						"value": "@dataset().table_name",
-						"type": "Expression"
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().filename",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().directory",
+							"type": "Expression"
+						},
+						"fileSystem": "raw"
 					}
-				}
+				},
+				"schema": {}
 			},
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Master Copy Pipeline')]",
+			"name": "[concat(parameters('factoryName'), '/Json_source_info')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_RawStorage_Sink_LinkService",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"filename": {
+						"type": "string"
+					},
+					"container": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().filename",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Parquet_Sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_RawStorage_Sink_LinkService",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"filename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@item().filename",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@concat(split(item().filename_sink,'.')[0],'/Date_Part=',formatDateTime(utcnow(),'yyyy-MM-dd'))",
+							"type": "Expression"
+						},
+						"fileSystem": "raw"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/copy - Publish Data to SQL')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Lookup1",
+						"name": "Lookup Publish Table",
 						"type": "Lookup",
 						"dependsOn": [],
 						"policy": {
@@ -73,7 +154,7 @@
 								"referenceName": "Json_source_info",
 								"type": "DatasetReference",
 								"parameters": {
-									"filename": "Table_Source_Datalake.json",
+									"filename": "Publish_Table.json",
 									"container": "manualfiles"
 								}
 							},
@@ -81,11 +162,11 @@
 						}
 					},
 					{
-						"name": "ForEach1",
+						"name": "ForEach Publish Table Name",
 						"type": "ForEach",
 						"dependsOn": [
 							{
-								"activity": "Lookup1",
+								"activity": "Lookup Publish Table",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -94,249 +175,12 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Lookup1').output.value",
+								"value": "@activity('Lookup Publish Table').output.value",
 								"type": "Expression"
 							},
 							"activities": [
 								{
-									"name": "If Condition1",
-									"type": "IfCondition",
-									"dependsOn": [],
-									"userProperties": [],
-									"typeProperties": {
-										"expression": {
-											"value": "@equals(split(item().File_name_source,'.')[1],'csv')",
-											"type": "Expression"
-										},
-										"ifFalseActivities": [
-											{
-												"name": "Copy data2",
-												"type": "Copy",
-												"dependsOn": [],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"source": {
-														"type": "BinarySource",
-														"storeSettings": {
-															"type": "AzureBlobFSReadSettings",
-															"recursive": true
-														},
-														"formatSettings": {
-															"type": "BinaryReadSettings",
-															"compressionProperties": {
-																"type": "ZipDeflateReadSettings",
-																"preserveZipFileNameAsFolder": false
-															}
-														}
-													},
-													"sink": {
-														"type": "BinarySink",
-														"storeSettings": {
-															"type": "AzureBlobFSWriteSettings"
-														}
-													},
-													"enableStaging": false
-												},
-												"inputs": [
-													{
-														"referenceName": "Binary_source",
-														"type": "DatasetReference",
-														"parameters": {
-															"container": {
-																"value": "@item().container_source",
-																"type": "Expression"
-															},
-															"filename": {
-																"value": "@item().File_name_source",
-																"type": "Expression"
-															}
-														}
-													}
-												],
-												"outputs": [
-													{
-														"referenceName": "Binary_sink",
-														"type": "DatasetReference",
-														"parameters": {
-															"container": {
-																"value": "@item().container_sink",
-																"type": "Expression"
-															},
-															"directory": {
-																"value": "@concat(item().directory_sink,'/Date_Part=',formatDateTime(utcnow(),'yyyy-MM-dd'))",
-																"type": "Expression"
-															},
-															"filename": {
-																"value": "@item().File_Name_Sink",
-																"type": "Expression"
-															}
-														}
-													}
-												]
-											}
-										],
-										"ifTrueActivities": [
-											{
-												"name": "Copy data1",
-												"type": "Copy",
-												"dependsOn": [],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"source": {
-														"type": "DelimitedTextSource",
-														"storeSettings": {
-															"type": "AzureBlobFSReadSettings",
-															"recursive": true,
-															"enablePartitionDiscovery": false
-														},
-														"formatSettings": {
-															"type": "DelimitedTextReadSettings"
-														}
-													},
-													"sink": {
-														"type": "DelimitedTextSink",
-														"storeSettings": {
-															"type": "AzureBlobFSWriteSettings"
-														},
-														"formatSettings": {
-															"type": "DelimitedTextWriteSettings",
-															"quoteAllText": true,
-															"fileExtension": ".txt"
-														}
-													},
-													"enableStaging": false,
-													"translator": {
-														"type": "TabularTranslator",
-														"typeConversion": true,
-														"typeConversionSettings": {
-															"allowDataTruncation": true,
-															"treatBooleanAsNumber": false
-														}
-													}
-												},
-												"inputs": [
-													{
-														"referenceName": "DelimitedText_Source",
-														"type": "DatasetReference",
-														"parameters": {
-															"container": {
-																"value": "@item().container_source",
-																"type": "Expression"
-															},
-															"directory": {
-																"value": "@item().directory_source",
-																"type": "Expression"
-															},
-															"filename": {
-																"value": "@item().File_name_source",
-																"type": "Expression"
-															}
-														}
-													}
-												],
-												"outputs": [
-													{
-														"referenceName": "DelimitedText_Sink",
-														"type": "DatasetReference",
-														"parameters": {
-															"container": {
-																"value": "@item().container_sink",
-																"type": "Expression"
-															},
-															"directory": {
-																"value": "@concat(split(item().File_Name_Sink,'.')[0],'/Date_Part=',formatDateTime(utcnow(),'yyyy-MM-dd'))\n",
-																"type": "Expression"
-															},
-															"filename": {
-																"value": "@item().File_Name_Sink",
-																"type": "Expression"
-															}
-														}
-													}
-												]
-											}
-										]
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Lookup Metadata SQL",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "ForEach1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
-							},
-							"dataset": {
-								"referenceName": "Json_source_info",
-								"type": "DatasetReference",
-								"parameters": {
-									"filename": "Table_Source_SQL.json",
-									"container": "manualfiles"
-								}
-							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "ForEach_SQL_Table",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Lookup Metadata SQL",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('Lookup Metadata SQL').output.value",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Copy data SQL Tables",
+									"name": "Copy data to Publish SQL",
 									"type": "Copy",
 									"dependsOn": [],
 									"policy": {
@@ -349,36 +193,38 @@
 									"userProperties": [],
 									"typeProperties": {
 										"source": {
-											"type": "AzureSqlSource",
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
+											"type": "AzureDatabricksDeltaLakeSource",
+											"exportSettings": {
+												"type": "AzureDatabricksDeltaLakeExportCommand"
+											}
 										},
 										"sink": {
-											"type": "ParquetSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
-											},
-											"formatSettings": {
-												"type": "ParquetWriteSettings"
-											}
+											"type": "AzureSqlSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false,
+											"tableOption": "autoCreate",
+											"disableMetricsCollection": false
 										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
+										"enableStaging": true,
+										"stagingSettings": {
+											"linkedServiceName": {
+												"referenceName": "ADLS_RawStorage_Sink_LinkService",
+												"type": "LinkedServiceReference"
+											},
+											"path": "manualfiles"
 										}
 									},
 									"inputs": [
 										{
-											"referenceName": "AzureSqlTable_Source",
+											"referenceName": "ADB_DeltaLake_Dataset_Source",
 											"type": "DatasetReference",
 											"parameters": {
-												"tablename": {
-													"value": "@item().tablename_source",
+												"table_name": {
+													"value": "@item().source_table_name",
+													"type": "Expression"
+												},
+												"db_name": {
+													"value": "@item().database_name",
 													"type": "Expression"
 												}
 											}
@@ -386,11 +232,11 @@
 									],
 									"outputs": [
 										{
-											"referenceName": "Parquet_Sink",
+											"referenceName": "AzureSqlTable_Sink_Publish",
 											"type": "DatasetReference",
 											"parameters": {
-												"filename": {
-													"value": "@item().tablename_source",
+												"table_name": {
+													"value": "@item().publish_table_name",
 													"type": "Expression"
 												}
 											}
@@ -399,68 +245,6 @@
 								}
 							]
 						}
-					},
-					{
-						"name": "Copy data airlines",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "ForEach_SQL_Table",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "HttpReadSettings",
-									"requestMethod": "GET"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "DelimitedText_Airlines",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Json_Airlines_Sink",
-								"type": "DatasetReference",
-								"parameters": {
-									"directory": {
-										"value": "@concat('airlines/Date_Part=',formatDateTime(utcNow(),'yyyy-MM-dd'))",
-										"type": "Expression"
-									},
-									"filename": "airlines.json"
-								}
-							}
-						]
 					}
 				],
 				"policy": {
@@ -468,10 +252,12 @@
 				},
 				"annotations": []
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Json_source_info')]"
+			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/copy - Unique Carrier Cancellation SQL')]",
+			"name": "[concat(parameters('factoryName'), '/copy SQL Tables')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -602,7 +388,10 @@
 				"annotations": [],
 				"lastPublishTime": "2024-04-06T20:50:15Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Json_source_info')]",
+				"[concat(variables('factoryId'), '/datasets/Parquet_Sink')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/copy airline data')]",
@@ -672,7 +461,9 @@
 				"annotations": [],
 				"lastPublishTime": "2024-04-06T20:46:02Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Json_Airlines_Sink')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/copy data pipeline adlsgeekcoders')]",
@@ -918,7 +709,9 @@
 				"annotations": [],
 				"lastPublishTime": "2024-04-06T20:50:15Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Json_source_info')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/copy restAPI')]",
@@ -1022,55 +815,108 @@
 				"annotations": [],
 				"lastPublishTime": "2024-04-06T20:50:15Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Json_source_info')]"
+			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/copy - Publish Data to SQL')]",
+			"name": "[concat(parameters('factoryName'), '/Master Data Pipeline')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Lookup Publish Table",
-						"type": "Lookup",
+						"name": "copy data pipeline adlsgeekcoders",
+						"type": "ExecutePipeline",
 						"dependsOn": [],
 						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
 							"secureInput": false
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
+							"pipeline": {
+								"referenceName": "copy data pipeline adlsgeekcoders",
+								"type": "PipelineReference"
 							},
-							"dataset": {
-								"referenceName": "Json_source_info",
-								"type": "DatasetReference",
-								"parameters": {
-									"filename": "Publish_Table.json",
-									"container": "manualfiles"
-								}
-							},
-							"firstRowOnly": false
+							"waitOnCompletion": true,
+							"parameters": {}
 						}
 					},
 					{
-						"name": "ForEach Publish Table Name",
+						"name": "copy restAPI",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "copy restAPI",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "copy SQL Tables",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "copy SQL Tables",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "copy airline data",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "copy airline data",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					},
+					{
+						"name": "ForEach",
 						"type": "ForEach",
 						"dependsOn": [
 							{
-								"activity": "Lookup Publish Table",
+								"activity": "copy data pipeline adlsgeekcoders",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "copy restAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "copy SQL Tables",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "copy airline data",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1079,85 +925,82 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Lookup Publish Table').output.value",
+								"value": "@pipeline().parameters.Layer_Names_to_Run",
 								"type": "Expression"
 							},
 							"activities": [
 								{
-									"name": "Copy data to Publish SQL",
-									"type": "Copy",
+									"name": "Refresh_Databricks",
+									"type": "ExecutePipeline",
 									"dependsOn": [],
 									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
 										"secureInput": false
 									},
 									"userProperties": [],
 									"typeProperties": {
-										"source": {
-											"type": "AzureDatabricksDeltaLakeSource",
-											"exportSettings": {
-												"type": "AzureDatabricksDeltaLakeExportCommand"
-											}
+										"pipeline": {
+											"referenceName": "Refresh_Databricks",
+											"type": "PipelineReference"
 										},
-										"sink": {
-											"type": "AzureSqlSink",
-											"writeBehavior": "insert",
-											"sqlWriterUseTableLock": false,
-											"tableOption": "autoCreate",
-											"disableMetricsCollection": false
-										},
-										"enableStaging": true,
-										"stagingSettings": {
-											"linkedServiceName": {
-												"referenceName": "ADLS_RawStorage_Sink_LinkService",
-												"type": "LinkedServiceReference"
-											},
-											"path": "manualfiles"
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "ADB_DeltaLake_Dataset_Source",
-											"type": "DatasetReference",
-											"parameters": {
-												"table_name": {
-													"value": "@item().source_table_name",
-													"type": "Expression"
-												},
-												"db_name": {
-													"value": "@item().database_name",
-													"type": "Expression"
-												}
+										"waitOnCompletion": true,
+										"parameters": {
+											"Layer_Name": {
+												"value": "@item().Layer_Names_to_Run",
+												"type": "Expression"
 											}
 										}
-									],
-									"outputs": [
-										{
-											"referenceName": "AzureSqlTable_Sink_Publish",
-											"type": "DatasetReference",
-											"parameters": {
-												"table_name": {
-													"value": "@item().publish_table_name",
-													"type": "Expression"
-												}
-											}
-										}
-									]
+									}
 								}
 							]
+						}
+					},
+					{
+						"name": "copy - Publish Data to SQL",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "ForEach",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "copy - Publish Data to SQL",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
 						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
+				"parameters": {
+					"Layer_Names_to_Run": {
+						"type": "array",
+						"defaultValue": [
+							"Database_Creation",
+							"Cleansed",
+							"Data_Quality_Cleansed",
+							"Datamart"
+						]
+					}
+				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_Sink_Publish')]"
+				"[concat(variables('factoryId'), '/pipelines/copy data pipeline adlsgeekcoders')]",
+				"[concat(variables('factoryId'), '/pipelines/copy restAPI')]",
+				"[concat(variables('factoryId'), '/pipelines/copy SQL Tables')]",
+				"[concat(variables('factoryId'), '/pipelines/copy airline data')]",
+				"[concat(variables('factoryId'), '/pipelines/copy - Publish Data to SQL')]"
 			]
 		}
 	]
