@@ -154,7 +154,7 @@
 		"parameters": {
 			"Layer_Names_to_Run": {
 				"type": "array",
-				"defaultValue": "['Database_Creation', 'Cleansed', 'Data_Quality_Cleansed', 'Datamart']"
+				"defaultValue": "['Database_Creation','Cleansed','Data_Quality_Cleansed','Datamart']"
 			}
 		},
 		"annotations": []
