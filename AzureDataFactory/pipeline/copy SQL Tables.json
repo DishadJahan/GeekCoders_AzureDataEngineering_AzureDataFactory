@@ -1,5 +1,5 @@
 {
-	"name": "copy - Unique Carrier Cancellation SQL",
+	"name": "copy SQL Tables",
 	"properties": {
 		"description": "SQL Table: UNIQUE CARRIERS, Cancellation",
 		"activities": [
