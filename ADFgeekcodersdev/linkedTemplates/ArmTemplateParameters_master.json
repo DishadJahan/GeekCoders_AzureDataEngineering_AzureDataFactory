@@ -32,6 +32,9 @@
 		"RestAPI_LinkService_properties_typeProperties_url": {
 			"value": "https://airlabs.co/api/v9/airlines"
 		},
+		"ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url": {
+			"value": "https://adlsgeekcoders.dfs.core.windows.net"
+		},
 		"containerUri": {
 			"value": ""
 		},

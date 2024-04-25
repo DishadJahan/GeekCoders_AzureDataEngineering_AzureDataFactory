@@ -44,6 +44,10 @@
 		"AzureDatabricks_properties_typeProperties_existingClusterId": {
 			"type": "string",
 			"defaultValue": "0407-142128-mnw4jrwo"
+		},
+		"ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adlsgeekcoders.dfs.core.windows.net"
 		}
 	},
 	"variables": {
@@ -295,6 +299,29 @@
 							"type": "LinkedServiceReference"
 						},
 						"secretName": "Azure-SQL-Password"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/GeekcodersKeyVault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLS_geekcoderssoure_LinkedService')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "GeekcodersKeyVault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "adlsgeekcoders-key"
 					}
 				}
 			},
@@ -574,55 +601,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADLS_RawStorage_Sink_LinkService')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DelimitedText_Source')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLS_Storage_LinkService",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"container": {
-						"type": "string"
-					},
-					"directory": {
-						"type": "string"
-					},
-					"filename": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().filename",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().directory",
-							"type": "Expression"
-						},
-						"fileSystem": {
-							"value": "@dataset().container",
-							"type": "Expression"
-						}
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLS_Storage_LinkService')]"
 			]
 		}
 	]
