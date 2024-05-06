@@ -149,6 +149,29 @@
 					},
 					"waitOnCompletion": true
 				}
+			},
+			{
+				"name": "Copy pipeline Email_Send",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "copy - Publish Data to SQL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Copy pipeline Email_Send",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
 			}
 		],
 		"parameters": {
