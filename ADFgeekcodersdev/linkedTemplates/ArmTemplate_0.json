@@ -41,13 +41,13 @@
 			"type": "string",
 			"defaultValue": "https://adlsgeekcoders.dfs.core.windows.net"
 		},
-		"AzureDatabricks_properties_typeProperties_existingClusterId": {
-			"type": "string",
-			"defaultValue": "0407-142128-mnw4jrwo"
-		},
 		"ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adlsgeekcoders.dfs.core.windows.net"
+		},
+		"AzureDatabricks_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0407-142128-mnw4jrwo"
 		}
 	},
 	"variables": {
@@ -213,6 +213,29 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ADLS_geekcoderssoure_LinkedService')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "GeekcodersKeyVault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "adlsgeekcoders-key"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/GeekcodersKeyVault')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureDatabricks')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -299,29 +322,6 @@
 							"type": "LinkedServiceReference"
 						},
 						"secretName": "Azure-SQL-Password"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/GeekcodersKeyVault')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ADLS_geekcoderssoure_LinkedService')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "GeekcodersKeyVault",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": "adlsgeekcoders-key"
 					}
 				}
 			},

@@ -25,6 +25,10 @@
 			"type": "string",
 			"defaultValue": "https://adlsgeekcoders.dfs.core.windows.net"
 		},
+		"ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adlsgeekcoders.dfs.core.windows.net"
+		},
 		"AzureDatabricks_properties_typeProperties_existingClusterId": {
 			"type": "string",
 			"defaultValue": "0407-142128-mnw4jrwo"
@@ -44,16 +48,111 @@
 		"RestAPI_LinkService_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://airlabs.co/api/v9/airlines"
-		},
-		"ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://adlsgeekcoders.dfs.core.windows.net"
 		}
 	},
 	"variables": {
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Copy pipeline Email_Send')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy Email Send",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "Drop table if exists dbo.Email_Send;",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Excel_Email_Source",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "AzureSqlTable_Sink_Publish",
+								"type": "DatasetReference",
+								"parameters": {
+									"table_name": "Email_Send"
+								}
+							}
+						]
+					},
+					{
+						"name": "Web1",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Copy Email Send",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {},
+							"url": "https://prod-29.eastus.logic.azure.com:443/workflows/f912667574e04fab8f568ed17cddf4bf/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=8oEqVVBtLFQa4HFKfBjNEy-GyYUD1fyPFZNHngIddeM",
+							"body": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Excel_Email_Source')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_Sink_Publish')]"
+			]
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/Master Data Pipeline')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -212,6 +311,30 @@
 							"waitOnCompletion": true,
 							"parameters": {}
 						}
+					},
+					{
+						"name": "Copy pipeline Email_Send",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "copy - Publish Data to SQL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Copy pipeline Email_Send",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
 					}
 				],
 				"policy": {
@@ -236,6 +359,7 @@
 				"[concat(variables('factoryId'), '/pipelines/copy SQL Tables')]",
 				"[concat(variables('factoryId'), '/pipelines/copy airline data')]",
 				"[concat(variables('factoryId'), '/pipelines/copy - Publish Data to SQL')]",
+				"[concat(variables('factoryId'), '/pipelines/Copy pipeline Email_Send')]",
 				"[concat(variables('factoryId'), '/pipelines/Refresh_Databricks')]"
 			]
 		},
@@ -1298,6 +1422,41 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Excel_Email_Source')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_geekcoderssoure_LinkedService",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Email_Send",
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Email_Send.xlsx",
+						"fileSystem": "emailsource"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "type",
+						"type": "String"
+					},
+					{
+						"name": "Email_ID",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_geekcoderssoure_LinkedService')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Json_Airlines_Sink')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1486,6 +1645,29 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ADLS_geekcoderssoure_LinkedService')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "GeekcodersKeyVault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "adlsgeekcoders-key"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/GeekcodersKeyVault')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureDatabricks')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -1636,137 +1818,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ADLS_geekcoderssoure_LinkedService')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "AzureKeyVaultSecret",
-						"store": {
-							"referenceName": "GeekcodersKeyVault",
-							"type": "LinkedServiceReference"
-						},
-						"secretName": "adlsgeekcoders-key"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/GeekcodersKeyVault')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Excel_Email_Source')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLS_geekcoderssoure_LinkedService",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Excel",
-				"typeProperties": {
-					"sheetName": "Email_Send",
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "Email_Send.xlsx",
-						"fileSystem": "emailsource"
-					},
-					"firstRowAsHeader": true
-				},
-				"schema": [
-					{
-						"name": "type",
-						"type": "String"
-					},
-					{
-						"name": "Email_ID",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLS_geekcoderssoure_LinkedService')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Copy pipeline Email_Send')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy Email Send",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "ExcelSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								}
-							},
-							"sink": {
-								"type": "AzureSqlSink",
-								"preCopyScript": "Drop table if exists dbo.Email_Send;",
-								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false,
-								"tableOption": "autoCreate",
-								"disableMetricsCollection": false
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "Excel_Email_Source",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "AzureSqlTable_Sink_Publish",
-								"type": "DatasetReference",
-								"parameters": {
-									"table_name": "Email_Send"
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/Excel_Email_Source')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_Sink_Publish')]"
-			]
 		}
 	]
 }

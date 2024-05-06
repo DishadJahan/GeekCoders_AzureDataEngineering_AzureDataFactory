@@ -17,6 +17,9 @@
 		"ADLS_Storage_LinkService_properties_typeProperties_url": {
 			"value": "https://adlsgeekcoders.dfs.core.windows.net"
 		},
+		"ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url": {
+			"value": "https://adlsgeekcoders.dfs.core.windows.net"
+		},
 		"AzureDatabricks_properties_typeProperties_existingClusterId": {
 			"value": "0407-142128-mnw4jrwo"
 		},
@@ -31,9 +34,6 @@
 		},
 		"RestAPI_LinkService_properties_typeProperties_url": {
 			"value": "https://airlabs.co/api/v9/airlines"
-		},
-		"ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url": {
-			"value": "https://adlsgeekcoders.dfs.core.windows.net"
 		}
 	}
 }

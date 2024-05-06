@@ -25,6 +25,10 @@
 			"type": "string",
 			"defaultValue": "https://adlsgeekcoders.dfs.core.windows.net"
 		},
+		"ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adlsgeekcoders.dfs.core.windows.net"
+		},
 		"AzureDatabricks_properties_typeProperties_existingClusterId": {
 			"type": "string",
 			"defaultValue": "0407-142128-mnw4jrwo"
@@ -44,10 +48,6 @@
 		"RestAPI_LinkService_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://airlabs.co/api/v9/airlines"
-		},
-		"ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://adlsgeekcoders.dfs.core.windows.net"
 		},
 		"containerUri": {
 			"type": "string",
@@ -100,11 +100,11 @@
 					"ADLS_Storage_LinkService_properties_typeProperties_url": {
 						"value": "[parameters('ADLS_Storage_LinkService_properties_typeProperties_url')]"
 					},
-					"AzureDatabricks_properties_typeProperties_existingClusterId": {
-						"value": "[parameters('AzureDatabricks_properties_typeProperties_existingClusterId')]"
-					},
 					"ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url": {
 						"value": "[parameters('ADLS_geekcoderssoure_LinkedService_properties_typeProperties_url')]"
+					},
+					"AzureDatabricks_properties_typeProperties_existingClusterId": {
+						"value": "[parameters('AzureDatabricks_properties_typeProperties_existingClusterId')]"
 					}
 				}
 			},
