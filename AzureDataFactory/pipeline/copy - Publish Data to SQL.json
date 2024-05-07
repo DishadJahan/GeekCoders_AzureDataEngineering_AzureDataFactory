@@ -75,9 +75,8 @@
 									}
 								},
 								"sink": {
-									"type": "AzureSqlSink",
-									"writeBehavior": "insert",
-									"sqlWriterUseTableLock": false,
+									"type": "SqlDWSink",
+									"allowCopyCommand": true,
 									"tableOption": "autoCreate",
 									"disableMetricsCollection": false
 								},
@@ -108,7 +107,7 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "AzureSqlTable_Sink_Publish",
+									"referenceName": "AzureSynapseAnalyticsTable_Sink",
 									"type": "DatasetReference",
 									"parameters": {
 										"table_name": {
