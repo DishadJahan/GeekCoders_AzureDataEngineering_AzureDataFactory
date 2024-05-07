@@ -1168,7 +1168,8 @@
 							"Database",
 							"Cleansed",
 							"Data_Quality_Cleansed",
-							"Datamart"
+							"Datamart",
+							"Data_Quality_DataMart"
 						]
 					}
 				},
