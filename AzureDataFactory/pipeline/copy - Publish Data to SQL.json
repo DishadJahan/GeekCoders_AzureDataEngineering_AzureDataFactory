@@ -42,7 +42,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "WebHook ADF",
+						"activity": "Wait1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -122,8 +122,24 @@
 				}
 			},
 			{
-				"name": "WebHook ADF",
-				"type": "WebHook",
+				"name": "Wait1",
+				"type": "Wait",
+				"dependsOn": [
+					{
+						"activity": "DW_Status_Job",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 3
+				}
+			},
+			{
+				"name": "DW_Status_Job",
+				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
 						"activity": "Lookup Publish Table",
@@ -133,14 +149,44 @@
 					}
 				],
 				"policy": {
-					"secureOutput": false,
 					"secureInput": false
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"url": "https://86fb9851-b9ab-4c3e-9027-3b4580278164.webhook.eus.azure-automation.net/webhooks?token=S59lyXn1DoGHOsu8%2bWXcT35atYIklEPezvFt1oXUv1w%3d",
-					"method": "POST",
-					"timeout": "00:10:00"
+					"pipeline": {
+						"referenceName": "DW_Status_Job",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Status": "Start"
+					}
+				}
+			},
+			{
+				"name": "DW_Status_Job1",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ForEach Publish Table Name",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DW_Status_Job",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Status": "Stop"
+					}
 				}
 			}
 		],
