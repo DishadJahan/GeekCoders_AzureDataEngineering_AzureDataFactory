@@ -1,0 +1,28 @@
+{
+	"name": "DW_Status_Job",
+	"properties": {
+		"activities": [
+			{
+				"name": "WebHook ADF",
+				"type": "WebHook",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://86fb9851-b9ab-4c3e-9027-3b4580278164.webhook.eus.azure-automation.net/webhooks?token=S59lyXn1DoGHOsu8%2bWXcT35atYIklEPezvFt1oXUv1w%3d",
+					"method": "POST",
+					"timeout": "00:05:00"
+				}
+			}
+		],
+		"parameters": {
+			"Status": {
+				"type": "string"
+			}
+		},
+		"annotations": []
+	}
+}
