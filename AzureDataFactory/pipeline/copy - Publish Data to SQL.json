@@ -42,7 +42,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Lookup Publish Table",
+						"activity": "WebHook ADF",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -119,6 +119,28 @@
 							]
 						}
 					]
+				}
+			},
+			{
+				"name": "WebHook ADF",
+				"type": "WebHook",
+				"dependsOn": [
+					{
+						"activity": "Lookup Publish Table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://86fb9851-b9ab-4c3e-9027-3b4580278164.webhook.eus.azure-automation.net/webhooks?token=S59lyXn1DoGHOsu8%2bWXcT35atYIklEPezvFt1oXUv1w%3d",
+					"method": "POST",
+					"timeout": "00:10:00"
 				}
 			}
 		],
