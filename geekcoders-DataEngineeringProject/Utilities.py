@@ -1,4 +1,32 @@
 # Databricks notebook source
+def insert_test_cases(database, insert_id, insert_test_cases, insert_test_query, insert_expected_result):
+    try:
+        spark.sql(f"""create table if not exists {database}.insert_test_cases(
+            id int,
+            test_cases string,
+            test_query string,
+            expected_result int
+        )""")
+        spark.sql(f"""insert into {database}.insert_test_cases(id, test_cases, test_query, expected_result) values
+                  ({insert_id}, '{insert_test_cases}', '{insert_test_query}', {insert_expected_result})
+                  """)
+    except Exception as err:
+        print("Error Occured", str(err))
+
+# COMMAND ----------
+
+def execute_test_case(database):
+    df = spark.sql("""select * from datamart_geekcoders.insert_test_cases""").collect()
+    for i in df:
+        original_result = spark.sql(f"""{i.test_query}""").collect()
+        if(len(original_result) == i.expected_result):
+            print(f"Test case number {i.id} has passed")
+        else:
+            raise Exception (f"Test case number {i.id} has failed. Kindly Check!")
+
+
+# COMMAND ----------
+
 def pre_schema(df_base):
     try:
         schema = ""

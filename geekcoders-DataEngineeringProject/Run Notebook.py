@@ -26,6 +26,9 @@ Notebook_Path_Json = {
         "/Workspace/Users/dishadjahan.2802@outlook.com/geekcoders-DataEngineeringProject/Data Mart/Dim_Unique_Carriers",
         "/Workspace/Users/dishadjahan.2802@outlook.com/geekcoders-DataEngineeringProject/Data Mart/Dim_Plane",
         "/Workspace/Users/dishadjahan.2802@outlook.com/geekcoders-DataEngineeringProject/Data Mart/Reporting_Flight",
+    ],
+    "Data_Quality_DataMart" : [
+        "/Workspace/Users/dishadjahan.2802@outlook.com/geekcoders-DataEngineeringProject/Data Quality Test/Execute_DataMart_Data_Quality"
     ]
 }
 
