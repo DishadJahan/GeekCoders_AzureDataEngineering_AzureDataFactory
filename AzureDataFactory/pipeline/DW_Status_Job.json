@@ -14,6 +14,10 @@
 				"typeProperties": {
 					"url": "https://86fb9851-b9ab-4c3e-9027-3b4580278164.webhook.eus.azure-automation.net/webhooks?token=S59lyXn1DoGHOsu8%2bWXcT35atYIklEPezvFt1oXUv1w%3d",
 					"method": "POST",
+					"body": {
+						"value": "{\"param\":pipeline().parameters.Status}",
+						"type": "Expression"
+					},
 					"timeout": "00:05:00"
 				}
 			}
