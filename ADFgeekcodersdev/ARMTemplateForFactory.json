@@ -7,15 +7,15 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "ADFgeekcodersdev"
 		},
-		"AzureSqlDB_Sink_LinkedService_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'AzureSqlDB_Sink_LinkedService'",
-			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=geekcoders-devop.database.windows.net;Initial Catalog=geekcodersdev_db;User ID=dishadjahan"
-		},
 		"AzureSqlDb_Source_LinkedService_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDb_Source_LinkedService'",
 			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=geekcoderssource.database.windows.net;Initial Catalog=geekcoderssource_db;User ID=dishadjahan"
+		},
+		"AzureSynapseAnalytics_Sink_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSynapseAnalytics_Sink'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=geekcoders-devop.database.windows.net;Initial Catalog=geekcodersDW;User ID=dishadjahan"
 		},
 		"ADLS_RawStorage_Sink_LinkService_properties_typeProperties_url": {
 			"type": "string",
@@ -432,7 +432,7 @@
 						"type": "ForEach",
 						"dependsOn": [
 							{
-								"activity": "Lookup Publish Table",
+								"activity": "Wait1",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -465,9 +465,9 @@
 											}
 										},
 										"sink": {
-											"type": "AzureSqlSink",
-											"writeBehavior": "insert",
-											"sqlWriterUseTableLock": false,
+											"type": "SqlDWSink",
+											"allowCopyCommand": true,
+											"copyCommandSettings": {},
 											"tableOption": "autoCreate",
 											"disableMetricsCollection": false
 										},
@@ -498,7 +498,7 @@
 									],
 									"outputs": [
 										{
-											"referenceName": "AzureSqlTable_Sink_Publish",
+											"referenceName": "AzureSynapseAnalyticsTable_Sink",
 											"type": "DatasetReference",
 											"parameters": {
 												"table_name": {
@@ -511,6 +511,74 @@
 								}
 							]
 						}
+					},
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "DW_Status_Job",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 3
+						}
+					},
+					{
+						"name": "DW_Status_Job",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Lookup Publish Table",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "DW_Status_Job",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"Status": "Start"
+							}
+						}
+					},
+					{
+						"name": "DW_Status_Job1",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "ForEach Publish Table Name",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "DW_Status_Job",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"Status": "Stop"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -520,8 +588,9 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/Json_source_info')]",
+				"[concat(variables('factoryId'), '/pipelines/DW_Status_Job')]",
 				"[concat(variables('factoryId'), '/datasets/ADB_DeltaLake_Dataset_Source')]",
-				"[concat(variables('factoryId'), '/datasets/AzureSqlTable_Sink_Publish')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSynapseAnalyticsTable_Sink')]",
 				"[concat(variables('factoryId'), '/linkedServices/ADLS_RawStorage_Sink_LinkService')]"
 			]
 		},
@@ -1131,35 +1200,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AzureSqlTable_Sink_Publish')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureSqlDB_Sink_LinkedService",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"table_name": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": {
-						"value": "@dataset().table_name",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDB_Sink_LinkedService')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/AzureSqlTable_Source')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1186,6 +1226,35 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDb_Source_LinkedService')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSynapseAnalyticsTable_Sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSynapseAnalytics_Sink",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"table_name": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDWTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": {
+						"value": "@dataset().table_name",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSynapseAnalytics_Sink')]"
 			]
 		},
 		{
@@ -1692,14 +1761,14 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AzureSqlDB_Sink_LinkedService')]",
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDb_Source_LinkedService')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
 				"type": "AzureSqlDatabase",
 				"typeProperties": {
-					"connectionString": "[parameters('AzureSqlDB_Sink_LinkedService_connectionString')]",
+					"connectionString": "[parameters('AzureSqlDb_Source_LinkedService_connectionString')]",
 					"password": {
 						"type": "AzureKeyVaultSecret",
 						"store": {
@@ -1715,14 +1784,14 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/AzureSqlDb_Source_LinkedService')]",
+			"name": "[concat(parameters('factoryName'), '/AzureSynapseAnalytics_Sink')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"type": "AzureSqlDatabase",
+				"type": "AzureSqlDW",
 				"typeProperties": {
-					"connectionString": "[parameters('AzureSqlDb_Source_LinkedService_connectionString')]",
+					"connectionString": "[parameters('AzureSynapseAnalytics_Sink_connectionString')]",
 					"password": {
 						"type": "AzureKeyVaultSecret",
 						"store": {
@@ -1792,6 +1861,45 @@
 					"enableServerCertificateValidation": true,
 					"authenticationType": "Anonymous"
 				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DW_Status_Job')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "WebHook ADF",
+						"type": "WebHook",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://86fb9851-b9ab-4c3e-9027-3b4580278164.webhook.eus.azure-automation.net/webhooks?token=VJeXi5Fnx1xGKgbtw5Y6s7Fv9SDdaWSjuLaTwPmLJgc%3d",
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"value": "@json(concat('{\"param\": \"', pipeline().parameters.Status,'\"}'))",
+								"type": "Expression"
+							},
+							"timeout": "00:05:00"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"Status": {
+						"type": "string"
+					}
+				},
+				"annotations": []
 			},
 			"dependsOn": []
 		}

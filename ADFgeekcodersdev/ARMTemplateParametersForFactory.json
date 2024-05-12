@@ -5,11 +5,11 @@
 		"factoryName": {
 			"value": "ADFgeekcodersdev"
 		},
-		"AzureSqlDB_Sink_LinkedService_connectionString": {
-			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=geekcoders-devop.database.windows.net;Initial Catalog=geekcodersdev_db;User ID=dishadjahan"
-		},
 		"AzureSqlDb_Source_LinkedService_connectionString": {
 			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=geekcoderssource.database.windows.net;Initial Catalog=geekcoderssource_db;User ID=dishadjahan"
+		},
+		"AzureSynapseAnalytics_Sink_connectionString": {
+			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=geekcoders-devop.database.windows.net;Initial Catalog=geekcodersDW;User ID=dishadjahan"
 		},
 		"ADLS_RawStorage_Sink_LinkService_properties_typeProperties_url": {
 			"value": "https://adlsgeekcodersdevop.dfs.core.windows.net"
