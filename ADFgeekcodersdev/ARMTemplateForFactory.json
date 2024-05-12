@@ -129,6 +129,45 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DW_Status_Job')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "WebHook ADF",
+						"type": "WebHook",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://86fb9851-b9ab-4c3e-9027-3b4580278164.webhook.eus.azure-automation.net/webhooks?token=VJeXi5Fnx1xGKgbtw5Y6s7Fv9SDdaWSjuLaTwPmLJgc%3d",
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"value": "@json(concat('{\"param\": \"', pipeline().parameters.Status,'\"}'))",
+								"type": "Expression"
+							},
+							"timeout": "00:05:00"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"Status": {
+						"type": "string"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Master Data Pipeline')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -358,7 +397,7 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"notebookPath": "/Workspace/Users/dishadjahan.2802@outlook.com/geekcoders-DataEngineeringProject/Run_Notebooks",
+							"notebookPath": "/Users/dishadjahan.2802@outlook.com/geekcoders-DataEngineeringProject/Run Notebook",
 							"baseParameters": {
 								"Layer_Name": {
 									"value": "@pipeline().parameters.Layer_Name",
@@ -1861,45 +1900,6 @@
 					"enableServerCertificateValidation": true,
 					"authenticationType": "Anonymous"
 				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DW_Status_Job')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "WebHook ADF",
-						"type": "WebHook",
-						"dependsOn": [],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"url": "https://86fb9851-b9ab-4c3e-9027-3b4580278164.webhook.eus.azure-automation.net/webhooks?token=VJeXi5Fnx1xGKgbtw5Y6s7Fv9SDdaWSjuLaTwPmLJgc%3d",
-							"method": "POST",
-							"headers": {},
-							"body": {
-								"value": "@json(concat('{\"param\": \"', pipeline().parameters.Status,'\"}'))",
-								"type": "Expression"
-							},
-							"timeout": "00:05:00"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"Status": {
-						"type": "string"
-					}
-				},
-				"annotations": []
 			},
 			"dependsOn": []
 		}
