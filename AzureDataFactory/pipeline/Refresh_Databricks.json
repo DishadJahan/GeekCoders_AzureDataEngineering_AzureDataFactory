@@ -15,7 +15,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Workspace/Users/dishadjahan.2802@outlook.com/geekcoders-DataEngineeringProject/Run_Notebooks",
+					"notebookPath": "/Users/dishadjahan.2802@outlook.com/geekcoders-DataEngineeringProject/Run Notebook",
 					"baseParameters": {
 						"Layer_Name": {
 							"value": "@pipeline().parameters.Layer_Name",
