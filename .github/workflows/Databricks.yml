@@ -22,7 +22,7 @@ jobs:
     env: 
        Databricks_Host: '${{secrets.Databricks_URL_Prod}}'
        Databricks_Token: '${{secrets.Databricks_Token}}'
-       Git_Notebook_Path: 'GeekCoders_AzureDataEngineering_AzureDataFactory/Azure_Databricks/geekcoders-DataEngineeringProject/Cleansing'
+       Git_Notebook_Path: 'Azure_Databricks/geekcoders-DataEngineeringProject'
        Notebook_Deployment_Path: '/geekcoders-DataEngineeringProject'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
