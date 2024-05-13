@@ -6,6 +6,16 @@
 			"type": "string",
 			"metadata": "Data Factory name",
 			"defaultValue": "ADFgeekcodersdev"
+		},
+		"Master_properties_Master Data Pipeline_parameters_Layer_Names_to_Run": {
+			"type": "array",
+			"defaultValue": [
+				"Database",
+				"Cleansed",
+				"Data_Quality_Cleansed",
+				"Datamart",
+				"Data_Quality_DataMart"
+			]
 		}
 	},
 	"variables": {
@@ -1338,6 +1348,46 @@
 				"[concat(variables('factoryId'), '/pipelines/copy airline data')]",
 				"[concat(variables('factoryId'), '/pipelines/copy - Publish Data to SQL')]",
 				"[concat(variables('factoryId'), '/pipelines/Copy pipeline Email_Send')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Master')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "Master Data Pipeline",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"Layer_Names_to_Run": "[parameters('Master_properties_Master Data Pipeline_parameters_Layer_Names_to_Run')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2024-05-15T23:59:00",
+						"timeZone": "India Standard Time",
+						"schedule": {
+							"minutes": [
+								0
+							],
+							"hours": [
+								12
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/Master Data Pipeline')]"
 			]
 		}
 	]

@@ -49,6 +49,16 @@
 			"type": "string",
 			"defaultValue": "https://airlabs.co/api/v9/airlines"
 		},
+		"Master_properties_Master Data Pipeline_parameters_Layer_Names_to_Run": {
+			"type": "array",
+			"defaultValue": [
+				"Database",
+				"Cleansed",
+				"Data_Quality_Cleansed",
+				"Datamart",
+				"Data_Quality_DataMart"
+			]
+		},
 		"default_properties_Databricks_URL_value": {
 			"type": "string",
 			"defaultValue": "https://adb-8938963997263572.12.azuredatabricks.net/"
@@ -130,6 +140,9 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"Master_properties_Master Data Pipeline_parameters_Layer_Names_to_Run": {
+						"value": "[parameters('Master_properties_Master Data Pipeline_parameters_Layer_Names_to_Run')]"
 					}
 				}
 			},
