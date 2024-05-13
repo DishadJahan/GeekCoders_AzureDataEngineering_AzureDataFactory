@@ -25,7 +25,13 @@
 				},
 				"linkedServiceName": {
 					"referenceName": "AzureDatabricks",
-					"type": "LinkedServiceReference"
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"databricks_workspace": {
+							"value": "@pipeline().globalParameters.Databricks_URL",
+							"type": "Expression"
+						}
+					}
 				}
 			}
 		],
