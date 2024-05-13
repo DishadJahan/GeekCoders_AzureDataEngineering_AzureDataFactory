@@ -1,0 +1,41 @@
+{
+	"name": "Master",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "Master Data Pipeline",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"Layer_Names_to_Run": [
+						"Database",
+						"Cleansed",
+						"Data_Quality_Cleansed",
+						"Datamart",
+						"Data_Quality_DataMart"
+					]
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2024-05-15T23:59:00",
+				"timeZone": "India Standard Time",
+				"schedule": {
+					"minutes": [
+						0
+					],
+					"hours": [
+						12
+					]
+				}
+			}
+		}
+	}
+}
