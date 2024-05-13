@@ -17,6 +17,10 @@
 			"metadata": "Secure string for 'connectionString' of 'AzureSynapseAnalytics_Sink'",
 			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=geekcoders-devop.database.windows.net;Initial Catalog=geekcodersDW;User ID=dishadjahan"
 		},
+		"default_properties_Databricks_URL_value": {
+			"type": "string",
+			"defaultValue": "https://adb-8938963997263572.12.azuredatabricks.net/"
+		},
 		"GeekcodersKeyVault_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://keyvaultgeekcodersdev.vault.azure.net/"
@@ -54,6 +58,18 @@
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/default')]",
+			"type": "Microsoft.DataFactory/factories/globalparameters",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"Databricks_URL": {
+					"type": "string",
+					"value": "[parameters('default_properties_Databricks_URL_value')]"
+				}
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/DW_Status_Job')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -279,10 +295,15 @@
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"parameters": {
+					"databricks_workspace": {
+						"type": "String"
+					}
+				},
 				"annotations": [],
 				"type": "AzureDatabricks",
 				"typeProperties": {
-					"domain": "https://adb-8938963997263572.12.azuredatabricks.net/",
+					"domain": "@linkedService().databricks_workspace",
 					"accessToken": {
 						"type": "AzureKeyVaultSecret",
 						"store": {
@@ -397,7 +418,13 @@
 						},
 						"linkedServiceName": {
 							"referenceName": "AzureDatabricks",
-							"type": "LinkedServiceReference"
+							"type": "LinkedServiceReference",
+							"parameters": {
+								"databricks_workspace": {
+									"value": "@pipeline().globalParameters.Databricks_URL",
+									"type": "Expression"
+								}
+							}
 						}
 					}
 				],
@@ -550,47 +577,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ADLS_RawStorage_Sink_LinkService')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Binary_source')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLS_Storage_LinkService",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"container": {
-						"type": "string"
-					},
-					"filename": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "Binary",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().filename",
-							"type": "Expression"
-						},
-						"fileSystem": {
-							"value": "@dataset().container",
-							"type": "Expression"
-						}
-					},
-					"compression": {
-						"type": "ZipDeflate",
-						"level": "Optimal"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLS_Storage_LinkService')]"
 			]
 		}
 	]

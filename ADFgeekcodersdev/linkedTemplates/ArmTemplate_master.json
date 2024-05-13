@@ -49,6 +49,10 @@
 			"type": "string",
 			"defaultValue": "https://airlabs.co/api/v9/airlines"
 		},
+		"default_properties_Databricks_URL_value": {
+			"type": "string",
+			"defaultValue": "https://adb-8938963997263572.12.azuredatabricks.net/"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -81,6 +85,9 @@
 					},
 					"AzureSynapseAnalytics_Sink_connectionString": {
 						"value": "[parameters('AzureSynapseAnalytics_Sink_connectionString')]"
+					},
+					"default_properties_Databricks_URL_value": {
+						"value": "[parameters('default_properties_Databricks_URL_value')]"
 					},
 					"GeekcodersKeyVault_properties_typeProperties_baseUrl": {
 						"value": "[parameters('GeekcodersKeyVault_properties_typeProperties_baseUrl')]"

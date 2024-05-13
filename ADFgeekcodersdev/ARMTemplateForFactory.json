@@ -48,6 +48,10 @@
 		"RestAPI_LinkService_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://airlabs.co/api/v9/airlines"
+		},
+		"default_properties_Databricks_URL_value": {
+			"type": "string",
+			"defaultValue": "https://adb-8938963997263572.12.azuredatabricks.net/"
 		}
 	},
 	"variables": {
@@ -407,7 +411,13 @@
 						},
 						"linkedServiceName": {
 							"referenceName": "AzureDatabricks",
-							"type": "LinkedServiceReference"
+							"type": "LinkedServiceReference",
+							"parameters": {
+								"databricks_workspace": {
+									"value": "@pipeline().globalParameters.Databricks_URL",
+									"type": "Expression"
+								}
+							}
 						}
 					}
 				],
@@ -1756,10 +1766,15 @@
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"parameters": {
+					"databricks_workspace": {
+						"type": "String"
+					}
+				},
 				"annotations": [],
 				"type": "AzureDatabricks",
 				"typeProperties": {
-					"domain": "https://adb-8938963997263572.12.azuredatabricks.net/",
+					"domain": "@linkedService().databricks_workspace",
 					"accessToken": {
 						"type": "AzureKeyVaultSecret",
 						"store": {
@@ -1899,6 +1914,18 @@
 					"url": "[parameters('RestAPI_LinkService_properties_typeProperties_url')]",
 					"enableServerCertificateValidation": true,
 					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/default')]",
+			"type": "Microsoft.DataFactory/factories/globalparameters",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"Databricks_URL": {
+					"type": "string",
+					"value": "[parameters('default_properties_Databricks_URL_value')]"
 				}
 			},
 			"dependsOn": []

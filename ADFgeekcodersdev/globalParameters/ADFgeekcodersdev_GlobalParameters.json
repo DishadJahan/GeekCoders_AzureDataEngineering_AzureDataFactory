@@ -1,1 +1,6 @@
-{}
+{
+	"Databricks_URL": {
+		"type": "string",
+		"value": "https://adb-8938963997263572.12.azuredatabricks.net/"
+	}
+}

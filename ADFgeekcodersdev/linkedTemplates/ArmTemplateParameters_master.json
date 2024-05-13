@@ -35,6 +35,9 @@
 		"RestAPI_LinkService_properties_typeProperties_url": {
 			"value": "https://airlabs.co/api/v9/airlines"
 		},
+		"default_properties_Databricks_URL_value": {
+			"value": "https://adb-8938963997263572.12.azuredatabricks.net/"
+		},
 		"containerUri": {
 			"value": ""
 		},
