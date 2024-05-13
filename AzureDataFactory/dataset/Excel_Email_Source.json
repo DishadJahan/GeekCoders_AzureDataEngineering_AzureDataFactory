@@ -1,0 +1,30 @@
+{
+	"name": "Excel_Email_Source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS_geekcoderssoure_LinkedService",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Email_Send",
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Email_Send.xlsx",
+				"fileSystem": "emailsource"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "type",
+				"type": "String"
+			},
+			{
+				"name": "Email_ID",
+				"type": "String"
+			}
+		]
+	}
+}

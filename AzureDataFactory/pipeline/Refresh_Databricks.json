@@ -1,0 +1,39 @@
+{
+	"name": "Refresh_Databricks",
+	"properties": {
+		"activities": [
+			{
+				"name": "Notebook",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/dishadjahan.2802@outlook.com/geekcoders-DataEngineeringProject/Run Notebook",
+					"baseParameters": {
+						"Layer_Name": {
+							"value": "@pipeline().parameters.Layer_Name",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureDatabricks",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"Layer_Name": {
+				"type": "string"
+			}
+		},
+		"annotations": []
+	}
+}

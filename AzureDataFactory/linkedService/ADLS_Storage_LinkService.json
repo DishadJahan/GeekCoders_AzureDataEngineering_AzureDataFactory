@@ -1,0 +1,19 @@
+{
+	"name": "ADLS_Storage_LinkService",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://adlsgeekcoders.dfs.core.windows.net",
+			"accountKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "GeekcodersKeyVault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "Storage-Account-Key"
+			}
+		}
+	}
+}

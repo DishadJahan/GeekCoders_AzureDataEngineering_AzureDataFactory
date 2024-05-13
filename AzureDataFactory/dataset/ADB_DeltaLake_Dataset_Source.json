@@ -1,0 +1,30 @@
+{
+	"name": "ADB_DeltaLake_Dataset_Source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDatabricks_DeltaLake_LinkedService",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"table_name": {
+				"type": "string"
+			},
+			"db_name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureDatabricksDeltaLakeDataset",
+		"typeProperties": {
+			"database": {
+				"value": "@dataset().db_name",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().table_name",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	}
+}

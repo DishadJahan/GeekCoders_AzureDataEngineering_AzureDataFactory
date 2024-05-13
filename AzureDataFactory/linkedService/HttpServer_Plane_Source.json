@@ -1,0 +1,12 @@
+{
+	"name": "HttpServer_Plane_Source",
+	"properties": {
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "https://raw.githubusercontent.com/DishadJahan/GeekCoder_AzureDataEngineering_Dataset/main/PLANE.csv",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}

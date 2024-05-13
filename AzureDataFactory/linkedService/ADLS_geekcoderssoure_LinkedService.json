@@ -1,0 +1,18 @@
+{
+	"name": "ADLS_geekcoderssoure_LinkedService",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://adlsgeekcoders.dfs.core.windows.net",
+			"accountKey": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "GeekcodersKeyVault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "adlsgeekcoders-key"
+			}
+		}
+	}
+}
